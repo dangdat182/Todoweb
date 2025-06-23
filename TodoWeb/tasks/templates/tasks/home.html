@@ -1,0 +1,31 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Welcome - Todo App{% endblock %}
+
+{% block content %}
+<div class="welcome-message">
+    <h2>Welcome to Todo App</h2>
+    <p>Organize your tasks, boost your productivity, and achieve your goals!</p>
+    <div style="margin-top: 40px;">
+        <a href="{% url 'register' %}" class="btn btn-primary" style="margin-right: 15px;">Get Started</a>
+        <a href="{% url 'login' %}" class="btn btn-success">Login</a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px;">
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+        <h3 style="color: #2d3748; margin-bottom: 15px;">📝 Task Management</h3>
+        <p style="color: #718096;">Create, edit, and organize your tasks with ease. Set due dates and track your progress.</p>
+    </div>
+    
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+        <h3 style="color: #2d3748; margin-bottom: 15px;">🔒 Secure & Private</h3>
+        <p style="color: #718096;">Your tasks are private and secure. Only you can access your personal task list.</p>
+    </div>
+    
+    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+        <h3 style="color: #2d3748; margin-bottom: 15px;">⚡ Fast & Responsive</h3>
+        <p style="color: #718096;">Modern web interface with real-time updates. No page refreshes needed!</p>
+    </div>
+</div>
+{% endblock %} 

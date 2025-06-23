@@ -1,0 +1,65 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Create Task - Todo App{% endblock %}
+
+{% block content %}
+<div class="welcome-message">
+    <h2>Create New Task</h2>
+    <p>Add a new task to your todo list</p>
+</div>
+
+<div style="max-width: 600px; margin: 0 auto;">
+    <form id="createTaskForm">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <input type="text" id="title" name="title" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="4" placeholder="Optional description for your task..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="due_date">Due Date</label>
+            <input type="datetime-local" id="due_date" name="due_date" class="form-control">
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: flex-end;">
+            <a href="{% url 'task_list' %}" class="btn btn-danger">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Task</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        due_date: document.getElementById('due_date').value
+    };
+    
+    fetch('/create/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Task created successfully!');
+            window.location.href = '{% url "task_list" %}';
+        } else {
+            alert('Error creating task: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error creating task: ' + error);
+    });
+});
+</script>
+{% endblock %} 
