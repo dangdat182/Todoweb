@@ -96,7 +96,8 @@ def task_list(request):
         return redirect('login')
     
     tasks = Task.objects.filter(user=user)
-    return render(request, 'tasks/task_list.html', {'tasks': tasks, 'user': user})
+    shared_tasks = Task.objects.filter(shared_with=user)
+    return render(request, 'tasks/task_list.html', {'tasks': tasks, 'shared_tasks': shared_tasks, 'user': user})
 
 # Create Task View
 def create_task(request):
@@ -228,3 +229,34 @@ def account(request):
     if not user:
         return redirect('login')
     return render(request, 'tasks/account.html', {'user': user})
+
+# Share Task View
+def share_task(request, task_id):
+    user = get_current_user(request)
+    if not user:
+        return redirect('login')
+    
+    try:
+        task = Task.objects.get(id=task_id, user=user)
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            share_with_username = data.get('username')
+            share_with_user = User.objects(username=share_with_username).first()
+            if not share_with_user:
+                return JsonResponse({'success': False, 'error': 'User not found'})
+            if share_with_user not in task.shared_with:
+                task.shared_with.append(share_with_user)
+                task.save()
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+    except Task.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Task not found'})
+
+# List tasks shared with the user
+@login_required
+def shared_tasks(request):
+    user = get_current_user(request)
+    if not user:
+        return redirect('login')
+    tasks = Task.objects.filter(shared_with=user)
+    return render(request, 'tasks/shared_tasks.html', {'tasks': tasks, 'user': user})

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import share_task, shared_tasks
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -12,4 +13,6 @@ urlpatterns = [
     path('google-login/', views.google_login, name='google_login'),
     path('oauth2callback/', views.oauth2callback, name='oauth2callback'),
     path('account/', views.account, name='account'),
+    path('share/<str:task_id>/', share_task, name='share_task'),
+    path('shared/', shared_tasks, name='shared_tasks'),
 ] 

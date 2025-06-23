@@ -46,5 +46,6 @@ class Task(Document):
     due_date = DateTimeField()
     completed = BooleanField(default=False)
     user = ReferenceField(User, required=True)
+    shared_with = mongoengine.ListField(mongoengine.ReferenceField(User))
 
     meta = {'collection': 'tasks'}

@@ -25,6 +25,7 @@
                     </button>
                     <button class="btn btn-warning edit-task" data-task-id="{{ task.id }}">✏️ Edit</button>
                     <button class="btn btn-danger delete-task" data-task-id="{{ task.id }}">🗑️ Delete</button>
+                    <button class="btn btn-info share-task" data-task-id="{{ task.id }}">🔗 Share</button>
                 </div>
             </div>
         {% endfor %}
@@ -34,6 +35,25 @@
         <h2>No tasks yet!</h2>
         <p>Create your first task to get started</p>
         <a href="{% url 'create_task' %}" class="btn btn-primary">Create Your First Task</a>
+    </div>
+{% endif %}
+
+{% if shared_tasks %}
+    <div style="margin-top: 40px;">
+        <h3 style="color: #2d3748;">Tasks Shared With Me</h3>
+        <div id="shared-tasks-container">
+            {% for task in shared_tasks %}
+                <div class="task-card" data-task-id="{{ task.id }}">
+                    <div class="task-title">{{ task.title }}</div>
+                    {% if task.description %}
+                        <div class="task-description">{{ task.description }}</div>
+                    {% endif %}
+                    {% if task.due_date %}
+                        <div class="task-due-date">📅 Due: {{ task.due_date|date:"F j, Y" }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endif %}
 
@@ -57,6 +77,23 @@
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Share Task Modal -->
+<div id="shareModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px;">
+        <h3 style="margin-bottom: 20px; color: #2d3748;">Share Task</h3>
+        <form id="shareForm">
+            <div class="form-group">
+                <label for="share-username">Share with username:</label>
+                <input type="text" id="share-username" class="form-control" required>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-danger" onclick="closeShareModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Share</button>
             </div>
         </form>
     </div>
@@ -210,6 +247,40 @@ document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeEditModal();
     }
+});
+
+// Share task
+let currentShareTaskId = null;
+document.querySelectorAll('.share-task').forEach(button => {
+    button.addEventListener('click', function() {
+        currentShareTaskId = this.dataset.taskId;
+        document.getElementById('shareModal').style.display = 'block';
+    });
+});
+function closeShareModal() {
+    document.getElementById('shareModal').style.display = 'none';
+    document.getElementById('share-username').value = '';
+}
+document.getElementById('shareForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('share-username').value;
+    fetch(`/share/${currentShareTaskId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Task shared successfully!');
+            closeShareModal();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
 });
 </script>
 
